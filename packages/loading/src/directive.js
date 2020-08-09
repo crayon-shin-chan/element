@@ -7,6 +7,7 @@ const Mask = Vue.extend(Loading);
 
 const loadingDirective = {};
 loadingDirective.install = Vue => {
+  /** 服务端渲染直接返回 */  
   if (Vue.prototype.$isServer) return;
   const toggleLoading = (el, binding) => {
     if (binding.value) {

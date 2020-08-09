@@ -166,15 +166,20 @@ const components = [
   CollapseTransition
 ];
 
-const install = function(Vue, opts = {}) {
-  locale.use(opts.locale);
+/** 插件install */
+const install = function (Vue, opts = {}) {
+    
+  locale.use(opts.locale);//
   locale.i18n(opts.i18n);
 
+  /** 注册组件 */
   components.forEach(component => {
     Vue.component(component.name, component);
   });
 
+  /** 注册无限滚动指令 */  
   Vue.use(InfiniteScroll);
+  /** 注册v-loading指令 */  
   Vue.use(Loading.directive);
 
   Vue.prototype.$ELEMENT = {
@@ -182,26 +187,27 @@ const install = function(Vue, opts = {}) {
     zIndex: opts.zIndex || 2000
   };
 
-  Vue.prototype.$loading = Loading.service;
-  Vue.prototype.$msgbox = MessageBox;
-  Vue.prototype.$alert = MessageBox.alert;
-  Vue.prototype.$confirm = MessageBox.confirm;
+  Vue.prototype.$loading = Loading.service;//loading加载中服务
+  Vue.prototype.$msgbox = MessageBox;//消息
+  Vue.prototype.$alert = MessageBox.alert;//警告
+  Vue.prototype.$confirm = MessageBox.confirm;//确认
   Vue.prototype.$prompt = MessageBox.prompt;
-  Vue.prototype.$notify = Notification;
-  Vue.prototype.$message = Message;
+  Vue.prototype.$notify = Notification;//通知
+  Vue.prototype.$message = Message;//消息
 
 };
 
-/* istanbul ignore if */
+/* 如果已经引入，自动install */
 if (typeof window !== 'undefined' && window.Vue) {
   install(window.Vue);
 }
 
+/** 默认导出对象 */
 export default {
-  version: '2.13.2',
-  locale: locale.use,
+  version: '2.13.2',//版本号
+  locale: locale.use,//
   i18n: locale.i18n,
-  install,
+  install,//默认导出对象有install方法，可以直接作为Vue.use的参数
   CollapseTransition,
   Loading,
   Pagination,
