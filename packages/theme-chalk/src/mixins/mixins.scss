@@ -67,6 +67,7 @@
 
 /* BEM
  -------------------------- */
+/* 混合，用于在指定类名之前添加el-命名空间 */
 @mixin b($block) {
   $B: $namespace+'-'+$block !global;
 
@@ -100,6 +101,7 @@
   }
 }
 
+/* 混合 */
 @mixin m($modifier) {
   $selector: &;
   $currentSelector: "";

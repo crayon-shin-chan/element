@@ -86,8 +86,8 @@ import locale from 'element-ui/src/locale';
 import CollapseTransition from 'element-ui/src/transitions/collapse-transition';
 
 const components = [
-  Pagination,
-  Dialog,
+  Pagination,//分页组件
+  Dialog,//对话框
   Autocomplete,
   Dropdown,
   DropdownMenu,

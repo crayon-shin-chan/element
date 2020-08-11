@@ -3,24 +3,27 @@
 @import "common/var";
 @import "select";
 
+/* el-pagination类 */
 @include b(pagination) {
-  white-space: nowrap;
+  white-space: nowrap;//文本不换行
   padding: 2px 5px;
   color: $--pagination-font-color;
   font-weight: bold;
-  @include utils-clearfix;
+  @include utils-clearfix;//清除前后浮动
 
+  /* span与按钮的显示 */
   span:not([class*=suffix]),
   button {
-    display: inline-block;
+    display: inline-block;//内联块
     font-size: $--pagination-font-size;
     min-width: $--pagination-button-width;
     height: $--pagination-button-height;
     line-height: $--pagination-button-height;
-    vertical-align: top;
+    vertical-align: top;//垂直对齐，顶部
     box-sizing: border-box;
   }
 
+  /* 输入框 */
   .el-input__inner {
     text-align: center;
     -moz-appearance: textfield;
@@ -43,13 +46,14 @@
     }
   }
 
+  /* 按钮 */
   button {
     border: none;
     padding: 0 6px;
     background: transparent;
 
     &:focus {
-      outline: none;
+      outline: none;//焦点无轮廓线
     }
 
     &:hover {
@@ -63,6 +67,7 @@
     }
   }
 
+  /* 上一页、下一页按钮 */
   .btn-prev,
   .btn-next {
     background: center center no-repeat;
@@ -80,11 +85,11 @@
   }
 
   .btn-prev {
-    padding-right: 12px;
+    padding-right: 12px;//上一页右内边距
   }
 
   .btn-next {
-    padding-left: 12px;    
+    padding-left: 12px;//下一页左内边距   
   }
 
   .el-pager li.disabled {
@@ -92,6 +97,7 @@
     cursor: not-allowed;
   }
 
+  /* 使用混合获取下一级类名，后缀为--small */
   @include m(small) {
     .btn-prev,
     .btn-next,
@@ -100,7 +106,7 @@
     .el-pager li.btn-quickprev,
     .el-pager li:last-child {
       border-color: transparent;
-      font-size: 12px;
+      font-size: 12px;//字体变小
       line-height: 22px;
       height: 22px;
       min-width: 22px;
@@ -129,6 +135,7 @@
     }
   }
 
+  /* page size选择器el-pagination__sizes */
   @include e(sizes) {
     margin: 0 10px 0 0;
     font-weight: normal;
@@ -144,12 +151,14 @@
     }
   }
 
+  /* 总数组件el-pagination__total */
   @include e(total) {
     margin-right: 10px;
     font-weight: normal;
     color: $--color-text-regular;
   }
 
+  /* 跳转子组件el-pagination__jump */
   @include e(jump) {
     margin-left: 24px;
     font-weight: normal;
@@ -164,6 +173,7 @@
     float: right;
   }
 
+  /* 可编辑输入框el-pagination__editor */ 
   @include e(editor) {
     line-height: 18px;
     padding: 0 2px;
@@ -189,6 +199,7 @@
     }
   }
 
+  /* 按钮添加背景色 */
   @include when(background) {
     .btn-prev,
     .btn-next,
@@ -223,6 +234,7 @@
       }
     }
 
+    /* 较小的分页样式 */
     &.el-pagination--small {
       .btn-prev,
       .btn-next,

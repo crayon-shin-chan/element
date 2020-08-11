@@ -5,97 +5,104 @@ import ElInput from 'element-ui/packages/input';
 import Locale from 'element-ui/src/mixins/locale';
 import { valueEquals } from 'element-ui/src/utils/util';
 
+/** 分页组件 */
 export default {
+
   name: 'ElPagination',
 
   props: {
+    //每页显示条目个数，支持 .sync 修饰符
     pageSize: {
       type: Number,
       default: 10
     },
-
+    //是否使用小型分页样式
     small: Boolean,
-
+    //总条目数
     total: Number,
-
+    //总页数，total 和 page-count 设置任意一个就可以达到显示页码的功能；如果要支持 page-sizes 的更改，则需要使用 total 属性
     pageCount: Number,
-
+    //页码按钮的数量，当总页数超过该值时会折叠
     pagerCount: {
       type: Number,
       validator(value) {
-        return (value | 0) === value && value > 4 && value < 22 && (value % 2) === 1;
+        return (value | 0) === value && value > 4 && value < 22 && (value % 2) === 1;//奇数、大于4小于22
       },
       default: 7
     },
-
+    //当前页数，支持 .sync 修饰符
     currentPage: {
       type: Number,
       default: 1
     },
-
+    //组件布局，子组件名用逗号分隔，默认为：上一页 1 2 3 4 5 6 7 下一页 跳到 -> 总数
     layout: {
       default: 'prev, pager, next, jumper, ->, total'
     },
-
+    //每页显示个数选择器的选项设置
     pageSizes: {
       type: Array,
       default() {
         return [10, 20, 30, 40, 50, 100];
       }
     },
-
+    //每页显示个数选择器的下拉框类名
     popperClass: String,
-
+    //替代图标显示的上一页文字
     prevText: String,
-
+    //替代图标显示的下一页文字
     nextText: String,
-
+    //是否为分页按钮添加背景色
     background: Boolean,
-
+    //是否禁用
     disabled: Boolean,
-
+    //只有一页时是否隐藏
     hideOnSinglePage: Boolean
   },
 
   data() {
     return {
-      internalCurrentPage: 1,
-      internalPageSize: 0,
-      lastEmittedPage: -1,
-      userChangePageSize: false
+      internalCurrentPage: 1,//内部页码
+      internalPageSize: 0,//内部页大小
+      lastEmittedPage: -1,//最后页面
+      userChangePageSize: false//用户改变页大小
     };
   },
-
+  /** 渲染函数 */
   render(h) {
+    /** 布局不存在，不渲染 */  
     const layout = this.layout;
     if (!layout) return null;
+    /** 单页不显示 */  
     if (this.hideOnSinglePage && (!this.internalPageCount || this.internalPageCount === 1)) return null;
-
+    /** 模板为div，jsx */
     let template = <div class={['el-pagination', {
-      'is-background': this.background,
-      'el-pagination--small': this.small
-    }] }></div>;
+      'is-background': this.background,//为分页按钮添加背景色
+      'el-pagination--small': this.small//小的分页样式
+    }]}></div>;
+    /** 子组件模板映射 */  
     const TEMPLATE_MAP = {
-      prev: <prev></prev>,
-      jumper: <jumper></jumper>,
+      prev: <prev></prev>,//上一页
+      jumper: <jumper></jumper>,//跳转
       pager: <pager currentPage={ this.internalCurrentPage } pageCount={ this.internalPageCount } pagerCount={ this.pagerCount } on-change={ this.handleCurrentChange } disabled={ this.disabled }></pager>,
-      next: <next></next>,
-      sizes: <sizes pageSizes={ this.pageSizes }></sizes>,
-      slot: <slot>{ this.$slots.default ? this.$slots.default : '' }</slot>,
-      total: <total></total>
+      next: <next></next>,//下一页
+      sizes: <sizes pageSizes={ this.pageSizes }></sizes>,//size选择器
+      slot: <slot>{ this.$slots.default ? this.$slots.default : '' }</slot>,//默认插槽
+      total: <total></total>//总数
     };
-    const components = layout.split(',').map((item) => item.trim());
+    const components = layout.split(',').map((item) => item.trim());//子组件数组
     const rightWrapper = <div class="el-pagination__rightwrapper"></div>;
     let haveRightWrapper = false;
 
     template.children = template.children || [];
     rightWrapper.children = rightWrapper.children || [];
     components.forEach(compo => {
+      /** 组件需要右包装 */      
       if (compo === '->') {
         haveRightWrapper = true;
         return;
       }
-
+      /** 需要右包装的添加到包装的子列表 */
       if (!haveRightWrapper) {
         template.children.push(TEMPLATE_MAP[compo]);
       } else {
@@ -110,17 +117,19 @@ export default {
     return template;
   },
 
+  /** 子组件内容 */
   components: {
+    /** 上一页 */    
     Prev: {
       render(h) {
         return (
           <button
             type="button"
             class="btn-prev"
-            disabled={ this.$parent.disabled || this.$parent.internalCurrentPage <= 1 }
+            disabled={ this.$parent.disabled || this.$parent.internalCurrentPage <= 1 }//父组件禁用或者页码小于等于1时禁用
             on-click={ this.$parent.prev }>
             {
-              this.$parent.prevText
+              this.$parent.prevText//上一页文本，或者图标
                 ? <span>{ this.$parent.prevText }</span>
                 : <i class="el-icon el-icon-arrow-left"></i>
             }
@@ -128,7 +137,7 @@ export default {
         );
       }
     },
-
+    /** 下一页 */
     Next: {
       render(h) {
         return (
@@ -146,23 +155,23 @@ export default {
         );
       }
     },
-
+    /** page size选择器 */
     Sizes: {
       mixins: [Locale],
 
       props: {
-        pageSizes: Array
+        pageSizes: Array//选项数组
       },
 
       watch: {
         pageSizes: {
-          immediate: true,
+          immediate: true,//侦听开始后立即调用
           handler(newVal, oldVal) {
-            if (valueEquals(newVal, oldVal)) return;
-            if (Array.isArray(newVal)) {
-              this.$parent.internalPageSize = newVal.indexOf(this.$parent.pageSize) > -1
-                ? this.$parent.pageSize
-                : this.pageSizes[0];
+            if (valueEquals(newVal, oldVal)) return;//新劳值相等，直接返回
+            if (Array.isArray(newVal)) {//新值是在、数组
+              this.$parent.internalPageSize = newVal.indexOf(this.$parent.pageSize) > -1//原来的pageSize是否在新值数组中
+                ? this.$parent.pageSize//在就使用原来的pageSize
+                : this.pageSizes[0];//不在就使用新数组的第一个
             }
           }
         }
@@ -172,7 +181,7 @@ export default {
         return (
           <span class="el-pagination__sizes">
             <el-select
-              value={ this.$parent.internalPageSize }
+              value={ this.$parent.internalPageSize }//绑定值是内部page size
               popperClass={ this.$parent.popperClass || '' }
               size="mini"
               on-input={ this.handleChange }
@@ -196,17 +205,19 @@ export default {
       },
 
       methods: {
+        /** 选择page size处理器 */  
         handleChange(val) {
           if (val !== this.$parent.internalPageSize) {
+            /** 设置内部page size */  
             this.$parent.internalPageSize = val = parseInt(val, 10);
-            this.$parent.userChangePageSize = true;
+            this.$parent.userChangePageSize = true;//使用了更改的pageSize
             this.$parent.$emit('update:pageSize', val);
             this.$parent.$emit('size-change', val);
           }
         }
       }
     },
-
+    /** 跳转组件 */
     Jumper: {
       mixins: [Locale],
 
@@ -219,6 +230,7 @@ export default {
       },
 
       watch: {
+        /** 父组件当前页更改时，用户输入跳转页设为空 */    
         '$parent.internalCurrentPage'() {
           this.userInput = null;
         }
@@ -229,6 +241,7 @@ export default {
           // Chrome, Safari, Firefox triggers change event on Enter
           // Hack for IE: https://github.com/ElemeFE/element/issues/11710
           // Drop this method when we no longer supports IE
+          /** 按下enter键触发跳转 */    
           if (keyCode === 13) {
             this.handleChange(target.value);
           }
@@ -236,7 +249,9 @@ export default {
         handleInput(value) {
           this.userInput = value;
         },
+        /** 跳转处理方法 */
         handleChange(value) {
+          /** 设置当前页 */    
           this.$parent.internalCurrentPage = this.$parent.getValidCurrentPage(value);
           this.$parent.emitChange();
           this.userInput = null;
@@ -249,12 +264,12 @@ export default {
             { this.t('el.pagination.goto') }
             <el-input
               class="el-pagination__editor is-in-pagination"
-              min={ 1 }
-              max={ this.$parent.internalPageCount }
+              min={ 1 }//最小跳转页
+              max={ this.$parent.internalPageCount }//最大跳转页
               value={ this.userInput !== null ? this.userInput : this.$parent.internalCurrentPage }
               type="number"
               disabled={ this.$parent.disabled }
-              nativeOnKeyup={ this.handleKeyup }
+              nativeOnKeyup={ this.handleKeyup }//处理按键
               onInput={ this.handleInput }
               onChange={ this.handleChange }/>
             { this.t('el.pagination.pageClassifier') }
@@ -263,6 +278,7 @@ export default {
       }
     },
 
+    /** 总数组件 */
     Total: {
       mixins: [Locale],
 
@@ -274,25 +290,26 @@ export default {
         );
       }
     },
-
+    /** 多个页码组件 */
     Pager
   },
 
   methods: {
+    /** 处理当前页更改 */  
     handleCurrentChange(val) {
-      this.internalCurrentPage = this.getValidCurrentPage(val);
-      this.userChangePageSize = true;
+      this.internalCurrentPage = this.getValidCurrentPage(val);//获取有效的当前页
+      this.userChangePageSize = true;//用户更改分页大小
       this.emitChange();
     },
-
+    /** 上一页 */
     prev() {
       if (this.disabled) return;
-      const newVal = this.internalCurrentPage - 1;
-      this.internalCurrentPage = this.getValidCurrentPage(newVal);
+      const newVal = this.internalCurrentPage - 1;//新当前页
+      this.internalCurrentPage = this.getValidCurrentPage(newVal);//获取有效值
       this.$emit('prev-click', this.internalCurrentPage);
       this.emitChange();
     },
-
+    /** 下一页 */
     next() {
       if (this.disabled) return;
       const newVal = this.internalCurrentPage + 1;
@@ -300,19 +317,19 @@ export default {
       this.$emit('next-click', this.internalCurrentPage);
       this.emitChange();
     },
-
+    /** 获取有效当前页 */
     getValidCurrentPage(value) {
       value = parseInt(value, 10);
 
-      const havePageCount = typeof this.internalPageCount === 'number';
+      const havePageCount = typeof this.internalPageCount === 'number';//总页数
 
       let resetValue;
       if (!havePageCount) {
         if (isNaN(value) || value < 1) resetValue = 1;
       } else {
-        if (value < 1) {
+        if (value < 1) {//不能小于1
           resetValue = 1;
-        } else if (value > this.internalPageCount) {
+        } else if (value > this.internalPageCount) {//不能大于总页数
           resetValue = this.internalPageCount;
         }
       }
@@ -325,20 +342,22 @@ export default {
 
       return resetValue === undefined ? value : resetValue;
     },
-
+    /** 触发更改 */
     emitChange() {
       this.$nextTick(() => {
         if (this.internalCurrentPage !== this.lastEmittedPage || this.userChangePageSize) {
           this.$emit('current-change', this.internalCurrentPage);
-          this.lastEmittedPage = this.internalCurrentPage;
-          this.userChangePageSize = false;
+          this.lastEmittedPage = this.internalCurrentPage;//最后一次触发的页码
+          this.userChangePageSize = false;//用户更改page size为false，触发更改后设置回false
         }
       });
     }
   },
 
   computed: {
+    /** 内部总页数 */  
     internalPageCount() {
+      /** 首先通过总数、分页大小计算 */    
       if (typeof this.total === 'number') {
         return Math.max(1, Math.ceil(this.total / this.internalPageSize));
       } else if (typeof this.pageCount === 'number') {

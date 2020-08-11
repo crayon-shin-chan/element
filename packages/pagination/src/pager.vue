@@ -1,9 +1,12 @@
 <template>
+  <!--页码列表-->  
   <ul @click="onPagerClick" class="el-pager">
+    <!--第一页-->  
     <li
       :class="{ active: currentPage === 1, disabled }"
       v-if="pageCount > 0"
       class="number">1</li>
+    <!--显示前面更多-->  
     <li
       class="el-icon more btn-quickprev"
       :class="[quickprevIconClass, { disabled }]"
@@ -11,11 +14,13 @@
       @mouseenter="onMouseenter('left')"
       @mouseleave="quickprevIconClass = 'el-icon-more'">
     </li>
+    <!--显示多个页码--> 
     <li
       v-for="pager in pagers"
       :key="pager"
       :class="{ active: currentPage === pager, disabled }"
       class="number">{{ pager }}</li>
+    <!--显示后面更多-->  
     <li
       class="el-icon more btn-quicknext"
       :class="[quicknextIconClass, { disabled }]"
@@ -23,6 +28,7 @@
       @mouseenter="onMouseenter('right')"
       @mouseleave="quicknextIconClass = 'el-icon-more'">
     </li>
+    <!--总页数-->
     <li
       :class="{ active: currentPage === pageCount, disabled }"
       class="number"
@@ -30,21 +36,24 @@
   </ul>
 </template>
 
+/** 显示多个页码的组件 */
 <script type="text/babel">
+
   export default {
     name: 'ElPager',
 
     props: {
-      currentPage: Number,
+      currentPage: Number,//当前页
 
-      pageCount: Number,
+      pageCount: Number,//总页数
 
-      pagerCount: Number,
+      pagerCount: Number,//显示页数
 
-      disabled: Boolean
+      disabled: Boolean//是否禁用
     },
 
     watch: {
+      /** 显示前面的更多页 */  
       showPrevMore(val) {
         if (!val) this.quickprevIconClass = 'el-icon-more';
       },
@@ -55,21 +64,26 @@
     },
 
     methods: {
+      /** 点击处理器 */  
       onPagerClick(event) {
         const target = event.target;
+        /** 点击ul无用 */
         if (target.tagName === 'UL' || this.disabled) {
           return;
         }
-
+        /** 点击页码 */
         let newPage = Number(event.target.textContent);
         const pageCount = this.pageCount;
         const currentPage = this.currentPage;
-        const pagerCountOffset = this.pagerCount - 2;
-
+        const pagerCountOffset = this.pagerCount - 2;//偏移
+        /** 点击了more */
         if (target.className.indexOf('more') !== -1) {
+          /** 显示前面更多 */  
           if (target.className.indexOf('quickprev') !== -1) {
-            newPage = currentPage - pagerCountOffset;
-          } else if (target.className.indexOf('quicknext') !== -1) {
+            newPage = currentPage - pagerCountOffset;  
+          }
+          /** 显示后面更多 */
+          else if (target.className.indexOf('quicknext') !== -1) {
             newPage = currentPage + pagerCountOffset;
           }
         }
@@ -153,8 +167,8 @@
     data() {
       return {
         current: null,
-        showPrevMore: false,
-        showNextMore: false,
+        showPrevMore: false,//是否显示前面更多
+        showNextMore: false,//是否显示后面更多
         quicknextIconClass: 'el-icon-more',
         quickprevIconClass: 'el-icon-more'
       };

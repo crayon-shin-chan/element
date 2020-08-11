@@ -1,4 +1,4 @@
-$namespace: 'el';
+$namespace: 'el';//class命名空间，其他的class都由el-前缀
 $element-separator: '__';
-$modifier-separator: '--';
-$state-prefix: 'is-';
+$modifier-separator: '--';//标识符分隔符，用于获取下一级class名称，如el-pagination--small
+$state-prefix: 'is-';//状态前缀
